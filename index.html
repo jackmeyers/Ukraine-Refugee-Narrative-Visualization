@@ -1,28 +1,58 @@
 <html>
 <script src='https://d3js.org/d3.v5.min.js'></script>
-<style> circle {fill: lightblue; stroke: black;} </style>
+<style>
+    circle {
+        fill: lightblue;
+        stroke: black;
+    }
+</style>
+
 <body onload='init()'>
-<svg width=300 height=300>
-</svg>
+    <svg width=600 height=600>
+    </svg>
+    <script>
+        const msToDay = 1000 * 60 * 60 * 24;
 
-<div></div>
-<script>
-async function init() {
-    data = await d3.csv("https://flunky.github.io/cars2017.csv");
-    console.log(data);
+        async function getData() {
+            data = await d3.csv("https://jackmeyers.github.io/Ukraine-Refugee-Narrative-Visualization/public/border_traffic_UA_PL_01_03.csv");
+            return data;
+        }
 
-    var x = d3.scaleLog().domain([10,150]).range([0,200]);
-    var y = d3.scaleLog().domain([10,150]).range([200,0]);
+        async function init() {
+            let data = await getData();
+            createGraph(data);
+        }
 
-    d3.select("svg").append("g").attr("transform","translate(50,50)")
-    .selectAll("circle").data(data).enter().append("circle")
-    .attr("cx", function(d) { return x(d.AverageCityMPG); })
-    .attr("cy", function(d) { return y(d.AverageHighwayMPG); })
-    .attr("r", function(d) { return parseInt(d.EngineCylinders) +2; });
+        function getDaysFromBeginning(value) {
+            var start = new Date("2022-01-01");
+            var current = new Date(value.Date);
+            var diff = (current - start) / msToDay;
+            return diff;
+        }
 
-    d3.select("svg").append("g").attr("transform","translate(50,50)").call(d3.axisLeft(y).tickValues([10,20,50,100]).tickFormat(d3.format("d")));
-    d3.select("svg").append("g").attr("transform","translate(50,250)").call(d3.axisBottom(x).tickValues([10,20,50,100]).tickFormat(d3.format("d")));
-}
-</script>
+        function testDateMath(entry) {
+            console.log("Entry: " + entry.Date.toString());
+            console.log("DaysFromBeginning: " + getDaysFromBeginning(entry));
+        }
+
+        async function createGraph(data) {
+            console.log(data[0]);
+            console.log("creating graph")
+            var x = d3.scaleLog().domain([0, 90]).range([0, 500]);
+            var y = d3.scaleLog().domain([0, 100]).range([500, 0]);
+
+            d3.select("svg").append("g").attr("transform", "translate(50,50)")
+                .selectAll("circle").data(data).enter().append("circle")
+                .attr("cx", function (d) { return getDaysFromBeginning(d.Date); })
+                .attr("cy", function (d) { return y(d.Number_of_persons_checked_in); })
+                .attr("r", function (d) { return 2; });
+
+            d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.axisLeft(y).tickValues([10, 20, 50, 100]).tickFormat(d3.format("d")));
+            d3.select("svg").append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(x).tickValues([10, 20, 50, 90]).tickFormat(d3.format("d")));
+        }
+
+
+    </script>
 </body>
+
 </html>

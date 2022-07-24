@@ -1,0 +1,25 @@
+{
+  "name": "ukraine-refugee-narrative-visualization",
+  "version": "1.0.0",
+  "description": "CS417 Narrative Visualization Project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackmeyers/Ukraine-Refugee-Narrative-Visualization.git"
+  },
+  "author": "Jack Meyers",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jackmeyers/Ukraine-Refugee-Narrative-Visualization/issues"
+  },
+  "homepage": "https://github.com/jackmeyers/Ukraine-Refugee-Narrative-Visualization#readme",
+  "dependencies": {
+    "create-react-app": "^5.0.1",
+    "d3": "^7.6.1",
+    "express": "^4.18.1"
+  }
+}
