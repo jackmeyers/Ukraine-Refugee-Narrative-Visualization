@@ -4,7 +4,9 @@ async function getData() {
     //local
     data = await d3.csv("https://jackmeyers.github.io/Ukraine-Refugee-Narrative-Visualization/public/border_traffic_UA_PL_01_03.csv");
     //github
-    //data = await d3.csv("public/border_traffic_UA_PL_01_03.csv");
+    if (data === undefined){
+        data = await d3.csv("public/border_traffic_UA_PL_01_03.csv");
+    }
     return data;
 }
 
