@@ -1,4 +1,18 @@
+/***************************************************************
+    Constants
+****************************************************************/
 const msToDay = 1000 * 60 * 60 * 24;
+
+/***************************************************************
+    Graph Logic
+****************************************************************/
+
+async function init() {
+    let data = await getData();
+    getMaxNumberPeopleCheckedIn(data);
+    createGraph(data);
+    //testDateMath(data[10000]);
+}
 
 async function getData() {
     //local
@@ -8,13 +22,6 @@ async function getData() {
         data = await d3.csv("public/border_traffic_UA_PL_01_03.csv");
     }
     return data;
-}
-
-async function init() {
-    let data = await getData();
-    getMaxNumberPeopleCheckedIn(data);
-    createGraph(data);
-    //testDateMath(data[10000]);
 }
 
 function getCheckedInBorderCrossingData(data, toPoland = true) {
@@ -45,9 +52,10 @@ function createGraph(data) {
     d3.select("svg").append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(x).tickValues([10, 20, 50, 90]).tickFormat(d3.format("d")));
 }
 
-////////////////////////////////////////////////////////////////
-//Utitlities / Tests
-////////////////////////////////////////////////////////////////
+/***************************************************************
+    Utilities / Tests
+****************************************************************/
+
 function testDateMath(entry) {
     console.log("Entry: " + entry.Date.toString());
     console.log("DaysFromBeginning: " + getDaysFromBeginning(entry));
