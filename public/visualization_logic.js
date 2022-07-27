@@ -24,10 +24,10 @@ async function init() {
 
 function updateGraph() {
     d3.select("svg").html("");
-    createAggregateGraph(getCheckedInData(global_data));
+    createAggregateGraph(getEvacuatedData(global_data));
 }
 
-function setupGraph(){}
+function setupGraph() { }
 
 function createAggregateGraph(data) {
     var parseDate = d3.timeParse("%Y-%m-%d");
@@ -65,10 +65,10 @@ async function getData() {
 }
 
 function getCheckedInData(data) {
+    let output = [];
     let aggregatedByDayDirection = d3.rollup(data, v => d3.sum(v, d => d.Number_of_persons_checked_in), d => d.Date, d => d.Direction_to_from_Poland);
     let aggregated = Array.from(aggregatedByDayDirection).map(([Date, Direction]) => ({ Date, Direction }));
 
-    let output = [];
     if (isToPoland())
         index = Array.from(aggregated[0].Direction.keys()).indexOf('arrival in Poland');
     else
@@ -79,15 +79,16 @@ function getCheckedInData(data) {
             Date: day.Date,
             Count: Array.from(day.Direction.values())[index]
         });
-    })
+    });
     return output;
 }
 
 function getEvacuatedData(data) {
-    let aggregatedByDayDirection = d3.rollup(data, v => d3.sum(v, d => d.Nu), d => d.Date, d => d.Number_of_people_evacuated);
+    let output = [];
+    //decided to edit the data because log(0) doesn't exist and causes issues due to plotting NaN
+    let aggregatedByDayDirection = d3.rollup(data, v => { return d3.sum(v, d => d.Number_of_people_evacuated) < 1 ? 1 : d3.sum(v, d => d.Number_of_people_evacuated) }, d => d.Date, d => d.Direction_to_from_Poland);
     let aggregated = Array.from(aggregatedByDayDirection).map(([Date, Direction]) => ({ Date, Direction }));
 
-    let output = [];
     if (isToPoland())
         index = Array.from(aggregated[0].Direction.keys()).indexOf('arrival in Poland');
     else
@@ -98,7 +99,7 @@ function getEvacuatedData(data) {
             Date: day.Date,
             Count: Array.from(day.Direction.values())[index]
         });
-    })
+    });
     return output;
 }
 
@@ -113,7 +114,7 @@ function isToPoland() {
 function updateDirection() {
     if (isToPoland())
         document.getElementById("direction").innerText = "To Poland";
-    else    
+    else
         document.getElementById("direction").innerText = "To Ukraine";
     updateGraph();
 }
