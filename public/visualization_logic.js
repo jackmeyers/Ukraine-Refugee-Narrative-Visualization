@@ -9,11 +9,37 @@ let global_data = undefined;
 window.addEventListener('load', () => { init() });
 
 async function init() {
-    //document.getElementById('updateButton').addEventListener('click', updateGraph);
-    document.getElementById('toggleDirection').addEventListener('change', updateDirection);
+    document.getElementById('next-slide').addEventListener('click', getNextSlide);
+    document.getElementById('toggle-direction').addEventListener('change', updateDirection);
     global_data = await getData();
-    //updateGraph();
-    updateDirection();
+    toggleDirectionText();
+    changeSlide(0);
+}
+
+function changeSlide(slide) {
+    switch (slide) {
+        case 0:
+            updateGraph(getCheckedInData(global_data));
+            break;
+        case 1:
+            updateGraph(getEvacuatedData(global_data));
+            break;
+        case 2:
+            console.log(2);
+            break;
+    }
+}
+
+function updateSlide() {
+    var slide = parseInt(document.getElementById("visualization").getAttribute("data-slide"));
+    changeSlide(slide);
+}
+
+function getNextSlide() {
+    var slide = parseInt(document.getElementById("visualization").getAttribute("data-slide"));
+    slide = (slide + 1) % 3;
+    document.getElementById("visualization").setAttribute("data-slide", slide);
+    changeSlide(slide);
 }
 
 /***************************************************************
@@ -22,9 +48,9 @@ async function init() {
 
 //each scene needs to filter the data and then do another rollup to sum the data (or not) 
 
-function updateGraph() {
+function updateGraph(data) {
     d3.select("svg").html("");
-    createAggregateGraph(getEvacuatedData(global_data));
+    createAggregateGraph(data);
 }
 
 function setupGraph() { }
@@ -56,11 +82,11 @@ function createAggregateGraph(data) {
 
 async function getData() {
     //local
-    //data = await d3.csv("https://jackmeyers.github.io/Ukraine-Refugee-Narrative-Visualization/public/border_traffic_UA_PL_01_03.csv");
+    data = await d3.csv("https://jackmeyers.github.io/Ukraine-Refugee-Narrative-Visualization/public/border_traffic_UA_PL_01_03.csv");
     //github
-    //if (data === undefined) {
-    data = await d3.csv("border_traffic_UA_PL_01_03.csv");
-    //}
+    if (data === undefined) {
+        data = await d3.csv("border_traffic_UA_PL_01_03.csv");
+    }
     return data;
 }
 
@@ -108,15 +134,19 @@ function getEvacuatedData(data) {
 ****************************************************************/
 
 function isToPoland() {
-    return document.getElementById("toggleDirection").checked;
+    return !document.getElementById("toggle-direction").checked;
 }
 
-function updateDirection() {
+function toggleDirectionText() {
     if (isToPoland())
         document.getElementById("direction").innerText = "To Poland";
     else
         document.getElementById("direction").innerText = "To Ukraine";
-    updateGraph();
+}
+
+function updateDirection() {
+    toggleDirectionText();
+    updateSlide();
 }
 
 function testDateMath(entry) {
