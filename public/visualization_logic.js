@@ -13,15 +13,17 @@ async function init() {
     document.getElementById('toggle-direction').addEventListener('change', updateDirection);
     global_data = await getData();
     toggleDirectionText();
-    changeSlide(0);
+    updateSlide();
 }
 
-function changeSlide(slide) {
-    switch (slide) {
+function updateSlide() {
+    switch (getCurrentSlideIndex()) {
         case 0:
+            updateGraphTitle("Checked in Border Crossings");      
             updateGraph(getCheckedInData(global_data));
             break;
         case 1:
+            updateGraphTitle("Evacuation Border Crossings");      
             updateGraph(getEvacuatedData(global_data));
             break;
         case 2:
@@ -30,16 +32,14 @@ function changeSlide(slide) {
     }
 }
 
-function updateSlide() {
-    var slide = parseInt(document.getElementById("visualization").getAttribute("data-slide"));
-    changeSlide(slide);
+function getNextSlide() {
+    document.getElementById("visualization").setAttribute("data-slide", (getCurrentSlideIndex() + 1) % 3);
+    updateSlide();
 }
 
-function getNextSlide() {
-    var slide = parseInt(document.getElementById("visualization").getAttribute("data-slide"));
-    slide = (slide + 1) % 3;
-    document.getElementById("visualization").setAttribute("data-slide", slide);
-    changeSlide(slide);
+function updateDirection() {
+    toggleDirectionText();
+    updateSlide();
 }
 
 /***************************************************************
@@ -144,9 +144,12 @@ function toggleDirectionText() {
         document.getElementById("direction").innerText = "To Ukraine";
 }
 
-function updateDirection() {
-    toggleDirectionText();
-    updateSlide();
+function updateGraphTitle(text){
+    document.getElementById("graph-title").innerText = text;
+}
+
+function getCurrentSlideIndex(){
+    return parseInt(document.getElementById("visualization").getAttribute("data-slide"));
 }
 
 function testDateMath(entry) {
