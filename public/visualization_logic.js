@@ -10,9 +10,8 @@ window.addEventListener('load', () => { init() });
 
 async function init() {
     document.getElementById('next-slide').addEventListener('click', getNextSlide);
-    document.getElementById('toggle-direction').addEventListener('change', updateDirection);
+    document.getElementById('toggle-direction').addEventListener('change', updateSlide);
     global_data = await getData();
-    toggleDirectionText();
     updateSlide();
 }
 
@@ -21,12 +20,16 @@ function updateSlide() {
         case 0:
             updateGraphTitle("Checked in Border Crossings");      
             updateGraph(getCheckedInData(global_data));
+            showDirectionToggle();      
             break;
         case 1:
             updateGraphTitle("Evacuation Border Crossings");      
             updateGraph(getEvacuatedData(global_data));
+            showDirectionToggle();      
             break;
         case 2:
+            updateGraphTitle("Net Border Crossings");
+            hideDirectionToggle();      
             console.log(2);
             break;
     }
@@ -34,11 +37,6 @@ function updateSlide() {
 
 function getNextSlide() {
     document.getElementById("visualization").setAttribute("data-slide", (getCurrentSlideIndex() + 1) % 3);
-    updateSlide();
-}
-
-function updateDirection() {
-    toggleDirectionText();
     updateSlide();
 }
 
@@ -63,7 +61,8 @@ function createAggregateGraph(data) {
     var x = d3.scaleTime()
         .domain([mindate, maxdate])
         .range([0, 500]);
-    var y = d3.scaleLog().domain([3000, 150000]).range([500, 0]);
+    //var y = d3.scaleLog().domain([100, 300000]).range([500, 0]);
+    var y = d3.scaleLinear().domain([1, 150000]).range([500, 0]);
 
     d3.select("svg").append("g",).attr("transform", "translate(50,50)")
         .selectAll("circle").data(data).enter().append("circle")
@@ -72,7 +71,7 @@ function createAggregateGraph(data) {
         }).attr("cy", function (d) { return y(d.Count); })
         .attr("r", function (d) { return 2; });
 
-    d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.axisLeft(y).tickValues([5000, 10000, 50000, 150000]).tickFormat(d3.format("d")));
+    d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.axisLeft(y).tickValues([5000, 25000, 50000, 75000, 100000, 125000]).tickFormat(d3.format("d")));
     d3.select("svg").append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(x).tickValues([10, 20, 50, 90]).tickFormat(d3.format("d")));
 }
 
@@ -133,15 +132,16 @@ function getEvacuatedData(data) {
     Utilities / Tests
 ****************************************************************/
 
-function isToPoland() {
-    return !document.getElementById("toggle-direction").checked;
+function showDirectionToggle() {
+    document.getElementById("direction-control").setAttribute("style", "visibility:visible;");
 }
 
-function toggleDirectionText() {
-    if (isToPoland())
-        document.getElementById("direction").innerText = "To Poland";
-    else
-        document.getElementById("direction").innerText = "To Ukraine";
+function hideDirectionToggle() {
+    document.getElementById("direction-control").setAttribute("style", "visibility:hidden;");
+}
+
+function isToPoland() {
+    return document.getElementById("toggle-direction").value === "toPoland";
 }
 
 function updateGraphTitle(text){

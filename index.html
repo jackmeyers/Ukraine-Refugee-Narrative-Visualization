@@ -4,7 +4,7 @@
 <head>
     <script src='https://d3js.org/d3.v7.min.js'></script>
     <script src='public/visualization_logic.js'></script>
-    <link rel="stylesheet" type="text/css" src="public/styles.css">
+    <link rel="stylesheet" type="text/css" src="styles.css">
 </head>
 
 <!-- <head>
@@ -19,10 +19,12 @@
     <h5>Visualization of the flow of people between Ukraine and Poland between January and March of 2022, which captures
         the beginning of the Russian invasion.</h5>
     <div id="top-controls">
-        <div>
-            <h5>Toggle direction of travel: </h5>
-            <input type="checkbox" id="toggle-direction">
-            <div id="direction"></div>
+        <div id="direction-control">
+            <label for="toggle-direction">Direction of Travel:</label>
+            <select id="toggle-direction" name="cars">
+                <option value="toPoland">Ukraine to Poland</option>
+                <option value="toUkraine">Poland to Ukraine</option>
+            </select>
         </div>
     </div>
     <div id="slideshow">
