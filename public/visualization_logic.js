@@ -11,6 +11,7 @@ window.addEventListener('load', () => { init() });
 async function init() {
     document.getElementById('next-slide').addEventListener('click', getNextSlide);
     document.getElementById('toggle-direction').addEventListener('change', updateSlide);
+    document.getElementById('toggle-crossing-type').addEventListener('change', updateSlide);
     global_data = await getData();
     updateSlide();
 }
@@ -20,17 +21,19 @@ function updateSlide() {
         case 0:
             updateGraphTitle("Checked in Border Crossings");      
             updateGraph(getCheckedInData(global_data));
-            showDirectionToggle();      
+            showDirectionToggle();
+            hideCrossingType();      
             break;
         case 1:
             updateGraphTitle("Evacuation Border Crossings");      
             updateGraph(getEvacuatedData(global_data));
-            showDirectionToggle();      
+            showDirectionToggle();  
+            hideCrossingType();    
             break;
         case 2:
             updateGraphTitle("Net Border Crossings");
-            hideDirectionToggle();      
-            console.log(2);
+            hideDirectionToggle();  
+            showCrossingType();    
             break;
     }
 }
@@ -133,15 +136,23 @@ function getEvacuatedData(data) {
 ****************************************************************/
 
 function showDirectionToggle() {
-    document.getElementById("direction-control").setAttribute("style", "visibility:visible;");
+    document.getElementById("direction-control").classList.remove("hide-control");
 }
 
 function hideDirectionToggle() {
-    document.getElementById("direction-control").setAttribute("style", "visibility:hidden;");
+    document.getElementById("direction-control").classList.add("hide-control");
+}
+
+function showCrossingType() {
+    document.getElementById("crossing-type-control").classList.remove("hide-control");
+}
+
+function hideCrossingType() {
+    document.getElementById("crossing-type-control").classList.add("hide-control");
 }
 
 function isToPoland() {
-    return document.getElementById("toggle-direction").value === "toPoland";
+    return document.getElementById("toggle-direction").value === "to-poland";
 }
 
 function updateGraphTitle(text){
@@ -150,20 +161,6 @@ function updateGraphTitle(text){
 
 function getCurrentSlideIndex(){
     return parseInt(document.getElementById("visualization").getAttribute("data-slide"));
-}
-
-function testDateMath(entry) {
-    console.log("Entry: " + entry.Date.toString());
-    console.log("DaysFromBeginning: " + getDaysFromBeginning(entry));
-}
-
-function getMaxNumberPeopleCheckedIn(data) {
-    let max = 0;
-    for (entry of data) {
-        if (entry.Number_of_persons_checked_in > max)
-            max = entry.Number_of_persons_checked_in;
-    }
-    console.log(max);
 }
 
 function getDaysFromBeginning(value) {

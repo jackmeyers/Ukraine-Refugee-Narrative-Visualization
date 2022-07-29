@@ -4,7 +4,7 @@
 <head>
     <script src='https://d3js.org/d3.v7.min.js'></script>
     <script src='public/visualization_logic.js'></script>
-    <link rel="stylesheet" type="text/css" src="styles.css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
 <!-- <head>
@@ -16,24 +16,34 @@
 
 <body>
     <h1>Ukraine Refugee Narrative Visualization</h1>
-    <h5>Visualization of the flow of people between Ukraine and Poland between January and March of 2022, which captures
+    <h5 id="subheading">Visualization of the flow of people between Ukraine and Poland between January and March of 2022, which captures
         the beginning of the Russian invasion.</h5>
-    <div id="top-controls">
-        <div id="direction-control">
-            <label for="toggle-direction">Direction of Travel:</label>
-            <select id="toggle-direction" name="cars">
-                <option value="toPoland">Ukraine to Poland</option>
-                <option value="toUkraine">Poland to Ukraine</option>
-            </select>
+    <div id="viewport">
+        <div id="top-controls">
+            <div id="direction-control" class="parameter-control hide-control">
+                <label for="toggle-direction">Direction of Travel:</label>
+                <select id="toggle-direction" name="cars">
+                    <option value="to-poland">Ukraine to Poland</option>
+                    <option value="to-ukraine">Poland to Ukraine</option>
+                </select>
+            </div>
+            <div id="crossing-type-control" class="parameter-control hide-control">
+                <label for="toggle-crossing-type">Type of Border Crossing:</label>
+                <select id="toggle-crossing-type" name="cars">
+                    <option value="all">All</option>
+                    <option value="checked-in">Checked-In</option>
+                    <option value="evacuation">Evacuated</option>
+                </select>
+            </div>
         </div>
-    </div>
-    <div id="slideshow">
-        <h3 id="graph-title"></h3>
-        <div id="visualization" data-slide="0">
-            <svg width=600 height=600></svg>
+        <div id="slideshow">
+            <h3 id="graph-title"></h3>
+            <div id="visualization" data-slide="0">
+                <svg width=600 height=600></svg>
+            </div>
+            <div><button id="next-slide">Next</button></div>
         </div>
-        <div><button id="next-slide">Next</button></div>
-    </div>
+    </div>    
 </body>
 
 </html>
