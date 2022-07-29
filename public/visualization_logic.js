@@ -19,35 +19,36 @@ async function init() {
 function updateSlide() {
     switch (getCurrentSlideIndex()) {
         case 0:
-            updateGraphTitle("Checked in Border Crossings");      
-            updateGraph(getCheckedInData(global_data));
+            updateGraphTitle("Checked-in Border Crossings");
+            updateGraph(getDirectionalCheckInData(global_data, isToPoland()));
             showDirectionToggle();
-            hideCrossingType();      
+            hideCrossingType();
             break;
         case 1:
-            updateGraphTitle("Evacuation Border Crossings");      
-            updateGraph(getEvacuatedData(global_data));
-            showDirectionToggle();  
-            hideCrossingType();    
+            updateGraphTitle("Evacuation Border Crossings");
+            updateGraph(getDirectionalEvacuationData(global_data, isToPoland()));
+            showDirectionToggle();
+            hideCrossingType();
             break;
         case 2:
-            updateGraphTitle("Net Border Crossings");
-            hideDirectionToggle();  
-            showCrossingType();    
+            updateGraphTitle("Net Border Crossings to Poland");
+            hideDirectionToggle();
+            showCrossingType();
+            getNetCrossingData(global_data);
             break;
     }
 }
 
 function getNextSlide() {
-    document.getElementById("visualization").setAttribute("data-slide", (getCurrentSlideIndex() + 1) % 3);
+    let index = (getCurrentSlideIndex() + 1) % 3;
+    document.getElementById("visualization").setAttribute("data-slide", index);
+    document.getElementById("slide-number").innerHTML = index+1;
     updateSlide();
 }
 
 /***************************************************************
     Graph Logic
 ****************************************************************/
-
-//each scene needs to filter the data and then do another rollup to sum the data (or not) 
 
 function updateGraph(data) {
     d3.select("svg").html("");
@@ -74,8 +75,9 @@ function createAggregateGraph(data) {
         }).attr("cy", function (d) { return y(d.Count); })
         .attr("r", function (d) { return 2; });
 
-    d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.axisLeft(y).tickValues([5000, 25000, 50000, 75000, 100000, 125000]).tickFormat(d3.format("d")));
-    d3.select("svg").append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(x).tickValues([10, 20, 50, 90]).tickFormat(d3.format("d")));
+    d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.axisLeft(y).tickValues([5000, 25000, 50000, 75000, 100000, 125000]).tickFormat(d3.format("d"))).append("text")
+    .attr("fill", "#000").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", "0.8em").attr("text-anchor", "end").text("Total daily count of people");
+    d3.select("svg").append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
 }
 
 /***************************************************************
@@ -92,12 +94,12 @@ async function getData() {
     return data;
 }
 
-function getCheckedInData(data) {
+function getDirectionalCheckInData(data, toPoland) {
     let output = [];
     let aggregatedByDayDirection = d3.rollup(data, v => d3.sum(v, d => d.Number_of_persons_checked_in), d => d.Date, d => d.Direction_to_from_Poland);
     let aggregated = Array.from(aggregatedByDayDirection).map(([Date, Direction]) => ({ Date, Direction }));
 
-    if (isToPoland())
+    if (toPoland)
         index = Array.from(aggregated[0].Direction.keys()).indexOf('arrival in Poland');
     else
         index = Array.from(aggregated[0].Direction.keys()).indexOf('departure from Poland');
@@ -111,13 +113,12 @@ function getCheckedInData(data) {
     return output;
 }
 
-function getEvacuatedData(data) {
+function getDirectionalEvacuationData(data, toPoland) {
     let output = [];
-    //decided to edit the data because log(0) doesn't exist and causes issues due to plotting NaN
     let aggregatedByDayDirection = d3.rollup(data, v => { return d3.sum(v, d => d.Number_of_people_evacuated) < 1 ? 1 : d3.sum(v, d => d.Number_of_people_evacuated) }, d => d.Date, d => d.Direction_to_from_Poland);
     let aggregated = Array.from(aggregatedByDayDirection).map(([Date, Direction]) => ({ Date, Direction }));
 
-    if (isToPoland())
+    if (toPoland)
         index = Array.from(aggregated[0].Direction.keys()).indexOf('arrival in Poland');
     else
         index = Array.from(aggregated[0].Direction.keys()).indexOf('departure from Poland');
@@ -129,11 +130,69 @@ function getEvacuatedData(data) {
         });
     });
     return output;
+}
+
+function getNetCrossingData(data) {
+    let netCrossings = []
+    switch(getCrossingType()){
+        case "all":
+            netCrossings = sumCountArrays(getNetCheckedInData(data), getNetEvacuationData(data))
+            break;
+        case "check-in":
+            netCrossings = getNetCheckedInData(data);
+            break;
+        case "evacuation":
+            netCrossings = getNetCheckedInData(data);
+            break;
+    }
+    return netCrossings;
+}
+
+//Returns net crossings with respect to Poland - Ukraine
+function getNetCheckedInData(data){
+    let checkedInToPoland = getDirectionalCheckInData(data, true);
+    let checkedInToUkraine = getDirectionalCheckInData(data, false);
+    return subtractCountArrays(checkedInToPoland, checkedInToUkraine);
+}
+
+//Returns net crossings with respect to Poland - Ukraine
+function getNetEvacuationData(data){
+    let evacuatedToPoland = getDirectionalEvacuationData(data, true);
+    let evacuatedToUkraine = getDirectionalEvacuationData(data, false);
+    return subtractCountArrays(evacuatedToPoland, evacuatedToUkraine);
 }
 
 /***************************************************************
     Utilities / Tests
 ****************************************************************/
+
+function sumCountArrays(arr1, arr2){
+    let output = [];
+    for (let i = 0; i < arr1.length; i++){
+        let entry = {Date: arr1[i].Date, Count: arr1[i].Count + arr2[i].Count}
+        output.push(entry);
+    }
+    return output;
+}
+
+function subtractCountArrays(arr1, arr2){
+    let output = [];
+    for (let i = 0; i < arr1.length; i++){
+        let entry = {Date: arr1[i].Date, Count: arr1[i].Count - arr2[i].Count}
+        output.push(entry);
+    }
+    return output;
+}
+
+function sampleDates(data) {
+    let sampled = [];
+    for (let i = 0; i < data.length; i++) {
+        if (i % 14 === 0) {
+            sampled.push(data[i]);
+        }
+    }
+    return sampled;
+}
 
 function showDirectionToggle() {
     document.getElementById("direction-control").classList.remove("hide-control");
@@ -155,11 +214,15 @@ function isToPoland() {
     return document.getElementById("toggle-direction").value === "to-poland";
 }
 
-function updateGraphTitle(text){
+function getCrossingType() {
+    return document.getElementById("toggle-crossing-type").value;
+}
+
+function updateGraphTitle(text) {
     document.getElementById("graph-title").innerText = text;
 }
 
-function getCurrentSlideIndex(){
+function getCurrentSlideIndex() {
     return parseInt(document.getElementById("visualization").getAttribute("data-slide"));
 }
 

@@ -28,6 +28,14 @@ body {
     align-items: center;
 }
 
+#slide-label{
+    display: inline-flex;
+}
+
+label {
+    margin: 0px 12px;
+}
+
 circle {
     fill: lightblue;
     stroke: black;

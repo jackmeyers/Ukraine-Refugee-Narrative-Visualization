@@ -22,16 +22,16 @@
         <div id="top-controls">
             <div id="direction-control" class="parameter-control hide-control">
                 <label for="toggle-direction">Direction of Travel:</label>
-                <select id="toggle-direction" name="cars">
+                <select id="toggle-direction" name="direction">
                     <option value="to-poland">Ukraine to Poland</option>
                     <option value="to-ukraine">Poland to Ukraine</option>
                 </select>
             </div>
             <div id="crossing-type-control" class="parameter-control hide-control">
                 <label for="toggle-crossing-type">Type of Border Crossing:</label>
-                <select id="toggle-crossing-type" name="cars">
+                <select id="toggle-crossing-type" name="crossing-type">
                     <option value="all">All</option>
-                    <option value="checked-in">Checked-In</option>
+                    <option value="check-in">Checked-In</option>
                     <option value="evacuation">Evacuated</option>
                 </select>
             </div>
@@ -41,9 +41,18 @@
             <div id="visualization" data-slide="0">
                 <svg width=600 height=600></svg>
             </div>
-            <div><button id="next-slide">Next</button></div>
+            <div><label id="slide-label">Slide&nbsp;<div id="slide-number">1</div>/3</label><button id="next-slide">Next</button></div>
         </div>
-    </div>    
+    </div>
+    
+    <div>
+        <h3>To Do:</h3>
+        <ul>
+            <li>Convert to line or bar chart</li>
+            <li>Add annotations for each data point</li>
+            <li>finish last chart</li>
+        </ul>
+    </div>
 </body>
 
 </html>
