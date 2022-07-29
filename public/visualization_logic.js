@@ -62,22 +62,30 @@ function createAggregateGraph(data) {
     var mindate = parseDate("2022-01-01"),
         maxdate = parseDate("2022-03-31");
 
-    var x = d3.scaleTime()
+    var xDate = d3.scaleTime()
         .domain([mindate, maxdate])
         .range([0, 500]);
-    //var y = d3.scaleLog().domain([100, 300000]).range([500, 0]);
-    var y = d3.scaleLinear().domain([1, 150000]).range([500, 0]);
+    var y = d3.scaleLinear().domain([0, 150000]).range([500, 0]);
+    var height = d3.scaleLinear().domain([0, 150000]).range([0, 500]);
+    var x = d3.scaleLinear().domain([0, 90]).range([0, 500]);
 
-    d3.select("svg").append("g",).attr("transform", "translate(50,50)")
-        .selectAll("circle").data(data).enter().append("circle")
-        .attr("cx", function (d) {
-            return x(parseDate(d.Date));
-        }).attr("cy", function (d) { return y(d.Count); })
-        .attr("r", function (d) { return 2; });
+    // d3.select("svg").append("g",).attr("transform", "translate(50,50)")
+    //     .selectAll("circle").data(data).enter().append("circle")
+    //     .attr("cx", function (d) {
+    //         return x(parseDate(d.Date));
+    //     }).attr("cy", function (d) { return y(d.Count); })
+    //     .attr("r", function (d) { return 2; });
+
+    d3.select("svg").append("g").attr("transform","translate(50,50)")
+        .selectAll("rect").data(data).enter().append("rect")
+        .attr("x", function(d,i) { return x(i); })
+        .attr("y", function(d) { return y(d.Count); })
+        .attr("width", "4.5")
+        .attr("height", function(d) {return height(d.Count);});
 
     d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.axisLeft(y).tickValues([5000, 25000, 50000, 75000, 100000, 125000]).tickFormat(d3.format("d"))).append("text")
     .attr("fill", "#000").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", "0.8em").attr("text-anchor", "end").text("Total daily count of people");
-    d3.select("svg").append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
+    d3.select("svg").append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(xDate).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
 }
 
 /***************************************************************
@@ -187,7 +195,7 @@ function subtractCountArrays(arr1, arr2){
 function sampleDates(data) {
     let sampled = [];
     for (let i = 0; i < data.length; i++) {
-        if (i % 14 === 0) {
+        if (i % 14 === 1) {
             sampled.push(data[i]);
         }
     }
