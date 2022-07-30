@@ -20,21 +20,21 @@ function updateSlide() {
     switch (getCurrentSlideIndex()) {
         case 0:
             updateGraphTitle("Checked-in Border Crossings");
-            updateGraph(getDirectionalCheckInData(global_data, isToPoland()));
+            createGraph(getDirectionalCheckInData(global_data, isToPoland()));
             showDirectionToggle();
             hideCrossingType();
             break;
         case 1:
-            updateGraphTitle("Evacuation Border Crossings");
-            updateGraph(getDirectionalEvacuationData(global_data, isToPoland()));
-            showDirectionToggle();
+            updateGraphTitle("Evacuations from Ukraine to Poland");
+            createGraph(getDirectionalEvacuationData(global_data, isToPoland()));
+            hideDirectionToggle();
             hideCrossingType();
             break;
         case 2:
-            updateGraphTitle("Net Border Crossings to Poland");
+            updateGraphTitle("Net Border Crossings from Ukraine to Poland");
             hideDirectionToggle();
             showCrossingType();
-            getNetCrossingData(global_data);
+            createNetGraph(getNetCrossingData(global_data));
             break;
     }
 }
@@ -50,31 +50,16 @@ function getNextSlide() {
     Graph Logic
 ****************************************************************/
 
-function updateGraph(data) {
-    d3.select("svg").html("");
-    createAggregateGraph(data);
-}
-
-function setupGraph() { }
-
-function createAggregateGraph(data) {
+function createGraph(data) {
+    clearGraph();
     var parseDate = d3.timeParse("%Y-%m-%d");
     var mindate = parseDate("2022-01-01"),
         maxdate = parseDate("2022-03-31");
 
-    var xDate = d3.scaleTime()
-        .domain([mindate, maxdate])
-        .range([0, 500]);
+    var x = d3.scaleLinear().domain([0, 90]).range([0, 500]);
     var y = d3.scaleLinear().domain([0, 150000]).range([500, 0]);
     var height = d3.scaleLinear().domain([0, 150000]).range([0, 500]);
-    var x = d3.scaleLinear().domain([0, 90]).range([0, 500]);
-
-    // d3.select("svg").append("g",).attr("transform", "translate(50,50)")
-    //     .selectAll("circle").data(data).enter().append("circle")
-    //     .attr("cx", function (d) {
-    //         return x(parseDate(d.Date));
-    //     }).attr("cy", function (d) { return y(d.Count); })
-    //     .attr("r", function (d) { return 2; });
+    var xDate = d3.scaleTime().domain([mindate, maxdate]).range([0, 500]);
 
     d3.select("svg").append("g").attr("transform","translate(50,50)")
         .selectAll("rect").data(data).enter().append("rect")
@@ -86,6 +71,34 @@ function createAggregateGraph(data) {
     d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.axisLeft(y).tickValues([5000, 25000, 50000, 75000, 100000, 125000]).tickFormat(d3.format("d"))).append("text")
     .attr("fill", "#000").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", "0.8em").attr("text-anchor", "end").text("Total daily count of people");
     d3.select("svg").append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(xDate).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
+}
+
+function createNetGraph(data) {
+    clearGraph();
+    console.log(data);
+    var parseDate = d3.timeParse("%Y-%m-%d");
+    var mindate = parseDate("2022-01-01"),
+        maxdate = parseDate("2022-03-31");
+
+    var x = d3.scaleLinear().domain([0, 90]).range([0, 500]);
+    var y = d3.scaleLinear().domain([-50000, 250000]).range([500, 0]);
+    var height = d3.scaleLinear().domain([0, 250000]).range([0, 416.667]);
+    var xDate = d3.scaleTime().domain([mindate, maxdate]).range([0, 500]);
+
+    d3.select("svg").append("g").attr("transform","translate(50,50)")
+        .selectAll("rect").data(data).enter().append("rect")
+        .attr("x", function(d,i) { return x(i); })
+        .attr("y", function(d) { return d.Count < 0 ? 416.667 : y(d.Count) ; })
+        .attr("width", "4.5")
+        .attr("height", function(d) {return d.Count < 0 ? height(-d.Count): height(d.Count); });
+
+    d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.axisLeft(y).ticks(7).tickFormat(d3.format("d"))).append("text")
+    .attr("fill", "#000").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", "0.8em").attr("text-anchor", "end").text("Total daily count of people");
+    d3.select("svg").append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(xDate).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
+}
+
+function clearGraph() {
+    d3.select("svg").html("");
 }
 
 /***************************************************************
@@ -123,7 +136,7 @@ function getDirectionalCheckInData(data, toPoland) {
 
 function getDirectionalEvacuationData(data, toPoland) {
     let output = [];
-    let aggregatedByDayDirection = d3.rollup(data, v => { return d3.sum(v, d => d.Number_of_people_evacuated) < 1 ? 1 : d3.sum(v, d => d.Number_of_people_evacuated) }, d => d.Date, d => d.Direction_to_from_Poland);
+    let aggregatedByDayDirection = d3.rollup(data, v => { return d3.sum(v, d => d.Number_of_people_evacuated) }, d => d.Date, d => d.Direction_to_from_Poland);
     let aggregated = Array.from(aggregatedByDayDirection).map(([Date, Direction]) => ({ Date, Direction }));
 
     if (toPoland)
@@ -150,7 +163,7 @@ function getNetCrossingData(data) {
             netCrossings = getNetCheckedInData(data);
             break;
         case "evacuation":
-            netCrossings = getNetCheckedInData(data);
+            netCrossings = getNetEvacuationData(data);
             break;
     }
     return netCrossings;

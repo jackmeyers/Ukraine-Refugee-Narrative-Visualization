@@ -12,6 +12,7 @@ body {
 #top-controls {
     display: flex;
     flex-direction: row;
+    height: 20px;
 }
 
 .parameter-control {
