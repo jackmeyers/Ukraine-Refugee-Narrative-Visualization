@@ -43,3 +43,8 @@ rect {
     fill: lavender;
     stroke: black;
 }
+
+rect.annotation-note-bg {
+    fill: white;
+    stroke: none;
+}
