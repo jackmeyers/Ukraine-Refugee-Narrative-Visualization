@@ -50,7 +50,7 @@ function showEvacuationVis() {
 
 function showNetCrossingVis() {
     updateGraphTitle("Net Border Crossings from Ukraine to Poland");
-    updateGraphSubtext("Negative values denote a positive flow from Poland to Ukraine.");
+    updateGraphSubtext("");
     hideDirectionToggle();
     showCrossingType();
     createNetGraph(getNetCrossingData(global_data));
@@ -100,9 +100,9 @@ function addCheckInAnnotations(x, y) {
         annotations = [
             {
                 note: {
-                    label: "Avg daily count: 16,873 persons",
+                    label: "Avg daily count: 16,873",
                     title: "Jan-21 : Feb-21",
-                    wrap: 150,
+                    wrap: 200,
                 },
                 x: x(21),
                 y: y(20000),
@@ -113,7 +113,7 @@ function addCheckInAnnotations(x, y) {
             },
             {
                 note: {
-                    label: "Avg daily count: 97,000 persons",
+                    label: "Avg daily count: 97,000",
                     title: "Feb-26 (2 days after invasion): Mar-04 ",
                     wrap: 270,
                 },
@@ -182,12 +182,12 @@ function createEvacuationGraph(data) {
         .attr("fill", "#000").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", "0.8em").attr("text-anchor", "end").text("Total daily count of people");
     svg.append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(xDate).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
 
-    const annotations = [
+    let annotations = [
         {
             note: {
                 label: "Beginning of Russian Invasion",
                 title: "February 24th",
-                wrap: 150,
+                wrap: 200,
             },
             x: x(53),
             y: y(5000),
@@ -222,6 +222,43 @@ function createNetGraph(data) {
     svg.append("g").attr("transform", "translate(50,50)").call(d3.axisLeft(y).ticks(7).tickFormat(d3.format("d"))).append("text")
         .attr("fill", "#000").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", "0.8em").attr("text-anchor", "end").text("Total daily count of people");
     svg.append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(xDate).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
+
+    addNetAnnotations(x,y);
+}
+
+function addNetAnnotations(x, y) {
+    let annotations = [
+        {
+            note: {
+                label: "Beginning of Russian Invasion",
+                title: "February 24th",
+                wrap: 200,
+            },
+            x: x(54),
+            y: y(10000),
+            dy: -50,
+            dx: -50,
+            type: d3.annotationCalloutElbow,
+        },
+    ];
+    if (getCrossingType() === "all" || getCrossingType() === "check-in") {
+        console.log("hello?");
+        annotations.push({
+            note: {
+                title: "Denotes positive flow of persons to Ukraine",
+                wrap: 300,
+            },
+            x: x(2.8),
+            y: y(1000),
+            dy: 40,
+            dx: 40,
+            subject: { width: 18, height: 20 },
+            type: d3.annotationCalloutRect,
+        });
+    }
+    console.log(getCrossingType());
+    d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.annotation().annotations(annotations))
+    return;
 }
 
 function clearGraph() {

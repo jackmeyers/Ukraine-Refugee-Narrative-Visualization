@@ -35,6 +35,10 @@ body {
     display: inline-flex;
 }
 
+#graph-subtext {
+    height: 20px;
+}
+
 label {
     margin: 0px 12px;
 }
