@@ -89,6 +89,14 @@ function createCheckInGraph(data) {
         .attr("fill", "#000").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", "0.8em").attr("text-anchor", "end").text("Total daily count of people");
     svg.append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(xDate).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
 
+    console.log(data);
+    let sum = 0;
+    for(let i = 31; i < 31+14; i++){
+        sum += data[i].Count;
+    }
+    console.log("avg sum")
+    console.log(sum/14)
+
     addCheckInAnnotations(x, y);
 }
 
@@ -98,16 +106,28 @@ function addCheckInAnnotations(x, y) {
         annotations = [
             {
                 note: {
-                    label: "Avg daily count: 16,873",
-                    title: "Jan-21 : Feb-21",
+                    label: "Avg daily count: 15,765",
+                    title: "Feb-01 : Feb-14",
+                    wrap: 150,
+                },
+                x: x(31),
+                y: y(20000),
+                dy: -30,
+                dx: -30,
+                subject: { width: 80, height: 30 },
+                type: d3.annotationCalloutRect,
+            },
+            {
+                note: {
+                    label: "Beginning of Russian Invasion",
+                    title: "February 24th",
                     wrap: 200,
                 },
-                x: x(21),
-                y: y(20000),
-                dy: -90,
-                dx: 20,
-                subject: { width: 175, height: 30 },
-                type: d3.annotationCalloutRect,
+                x: x(54),
+                y: y(31000),
+                dy: -70,
+                dx: -85,
+                type: d3.annotationCalloutElbow,
             },
             {
                 note: {
@@ -132,10 +152,10 @@ function addCheckInAnnotations(x, y) {
                     title: "February 24th",
                     wrap: 200,
                 },
-                x: x(55),
-                y: y(12500),
+                x: x(54.5),
+                y: y(12000),
                 dy: -40,
-                dx: -40,
+                dx: -.01,
                 type: d3.annotationCalloutElbow,
             },
             {
@@ -194,7 +214,7 @@ function addEvacuationAnnotations(x, y) {
                 title: "February 24th",
                 wrap: 200,
             },
-            x: x(53),
+            x: x(54),
             y: y(5000),
             dy: -50,
             dx: -50,
