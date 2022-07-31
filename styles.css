@@ -52,3 +52,13 @@ rect.annotation-note-bg {
     fill: white;
     stroke: none;
 }
+
+.annotation.show-annotation {
+    display: block;
+    transition: cubic-bezier();
+}
+
+.annotation {
+    display: none;
+    transition: cubic-bezier();
+}

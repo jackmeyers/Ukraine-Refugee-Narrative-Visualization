@@ -69,17 +69,15 @@ function getNextSlide() {
 ****************************************************************/
 
 function createCheckInGraph(data) {
-    clearGraph();
     let svg = d3.select("svg");
     var parseDate = d3.timeParse("%Y-%m-%d");
-    var mindate = parseDate("2022-01-01"),
-        maxdate = parseDate("2022-03-31");
-
+    var mindate = parseDate("2022-01-01"), maxdate = parseDate("2022-03-31");
     var x = d3.scaleLinear().domain([0, 90]).range([0, 500]);
     var y = d3.scaleLinear().domain([0, 150000]).range([500, 0]);
     var height = d3.scaleLinear().domain([0, 150000]).range([0, 500]);
     var xDate = d3.scaleTime().domain([mindate, maxdate]).range([0, 500]);
 
+    clearGraph();
     svg.append("g").attr("transform", "translate(50,50)")
         .selectAll("rect").data(data).enter().append("rect")
         .attr("x", function (d, i) { return x(i); })
@@ -108,20 +106,20 @@ function addCheckInAnnotations(x, y) {
                 y: y(20000),
                 dy: -90,
                 dx: 20,
-                subject: { width: 175, height: 50 },
+                subject: { width: 175, height: 30 },
                 type: d3.annotationCalloutRect,
             },
             {
                 note: {
-                    label: "Avg daily count: 97,000",
-                    title: "Feb-26 (2 days after invasion): Mar-04 ",
+                    label: "Avg daily count: 101,079",
+                    title: "First two weeks: Feb-24 to Mar-10",
                     wrap: 270,
                 },
                 x: x(56),
-                y: y(100000),
+                y: y(101000),
                 dy: 20,
                 dx: -40,
-                subject: { width: 40, height: 100 },
+                subject: { width: 80, height: 30 },
                 type: d3.annotationCalloutRect,
             },
         ]
@@ -136,7 +134,7 @@ function addCheckInAnnotations(x, y) {
                 },
                 x: x(55),
                 y: y(12500),
-                dy: -50,
+                dy: -40,
                 dx: -40,
                 type: d3.annotationCalloutElbow,
             },
@@ -147,30 +145,32 @@ function addCheckInAnnotations(x, y) {
                     wrap: 280,
                 },
                 x: x(60),
-                y: y(18000),
+                y: y(16000),
                 dy: -100,
                 dx: -10,
-                subject: { width: 100, height: 50 },
+                subject: { width: 100, height: 30 },
                 type: d3.annotationCalloutRect,
             },
         ]
     }
     d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.annotation().annotations(annotations))
+    let elements = document.getElementsByClassName("annotation");
+    for (let i = 0; i < elements.length; i++) {
+        const showAnnotation1Timeout = setTimeout(showAnnotation, 1000 + 1000 * i, elements[i]);
+    }
     return;
 }
 
 function createEvacuationGraph(data) {
-    clearGraph();
     let svg = d3.select("svg");
     var parseDate = d3.timeParse("%Y-%m-%d");
-    var mindate = parseDate("2022-01-01"),
-        maxdate = parseDate("2022-03-31");
-
+    var mindate = parseDate("2022-01-01"), maxdate = parseDate("2022-03-31");
     var x = d3.scaleLinear().domain([0, 90]).range([0, 500]);
     var y = d3.scaleLinear().domain([0, 100000]).range([500, 0]);
     var height = d3.scaleLinear().domain([0, 100000]).range([0, 500]);
     var xDate = d3.scaleTime().domain([mindate, maxdate]).range([0, 500]);
 
+    clearGraph();
     svg.append("g").attr("transform", "translate(50,50)")
         .selectAll("rect").data(data).enter().append("rect")
         .attr("x", function (d, i) { return x(i); })
@@ -182,6 +182,11 @@ function createEvacuationGraph(data) {
         .attr("fill", "#000").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", "0.8em").attr("text-anchor", "end").text("Total daily count of people");
     svg.append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(xDate).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
 
+    addEvacuationAnnotations(x, y);
+    return;
+}
+
+function addEvacuationAnnotations(x, y) {
     let annotations = [
         {
             note: {
@@ -195,23 +200,38 @@ function createEvacuationGraph(data) {
             dx: -50,
             type: d3.annotationCalloutElbow,
         },
+        {
+            note: {
+                label: "Avg daily count: 69,495",
+                title: "First two weeks: Feb-24 to Mar-10",
+                wrap: 270,
+            },
+            x: x(54),
+            y: y(70000),
+            dy: 20,
+            dx: -40,
+            subject: { width: 80, height: 30 },
+            type: d3.annotationCalloutRect,
+        },
     ]
-    svg.append("g").attr("transform", "translate(50,50)").call(d3.annotation().annotations(annotations))
+    d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.annotation().annotations(annotations))
+    let elements = document.getElementsByClassName("annotation");
+    for (let i = 0; i < elements.length; i++) {
+        const showAnnotation1Timeout = setTimeout(showAnnotation, 1000 + 1000 * i, elements[i]);
+    }
+    return;
 }
 
 function createNetGraph(data) {
-    clearGraph();
     let svg = d3.select("svg");
-
     var parseDate = d3.timeParse("%Y-%m-%d");
-    var mindate = parseDate("2022-01-01"),
-        maxdate = parseDate("2022-03-31");
-
+    var mindate = parseDate("2022-01-01"), maxdate = parseDate("2022-03-31");
     var x = d3.scaleLinear().domain([0, 90]).range([0, 500]);
     var y = d3.scaleLinear().domain([-50000, 250000]).range([500, 0]);
     var height = d3.scaleLinear().domain([0, 250000]).range([0, 416.667]);
     var xDate = d3.scaleTime().domain([mindate, maxdate]).range([0, 500]);
 
+    clearGraph();
     svg.append("g").attr("transform", "translate(50,50)")
         .selectAll("rect").data(data).enter().append("rect")
         .attr("x", function (d, i) { return x(i); })
@@ -223,46 +243,109 @@ function createNetGraph(data) {
         .attr("fill", "#000").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", "0.8em").attr("text-anchor", "end").text("Total daily count of people");
     svg.append("g").attr("transform", "translate(50,550)").call(d3.axisBottom(xDate).tickFormat(d3.timeFormat("%b-%d")).tickValues(sampleDates(data).map(function (d) { return new Date(d.Date) })))
 
-    addNetAnnotations(x,y);
+    addNetAnnotations(x, y);
+    return;
 }
 
 function addNetAnnotations(x, y) {
-    let annotations = [
-        {
-            note: {
-                label: "Beginning of Russian Invasion",
-                title: "February 24th",
-                wrap: 200,
-            },
-            x: x(54),
-            y: y(10000),
-            dy: -50,
-            dx: -50,
-            type: d3.annotationCalloutElbow,
+    let annotations = [];
+    let beginningOfInvasion = {
+        note: {
+            label: "Beginning of Russian Invasion",
+            title: "February 24th",
+            wrap: 200,
         },
-    ];
-    if (getCrossingType() === "all" || getCrossingType() === "check-in") {
-        console.log("hello?");
-        annotations.push({
-            note: {
-                title: "Denotes positive flow of persons to Ukraine",
-                wrap: 300,
-            },
-            x: x(2.8),
-            y: y(1000),
-            dy: 40,
-            dx: 40,
-            subject: { width: 18, height: 20 },
-            type: d3.annotationCalloutRect,
-        });
+        x: x(54),
+        y: y(10000),
+        dy: -50,
+        dx: -50,
+        type: d3.annotationCalloutElbow,
+    };
+    let denotesFlowToUkraine = {
+        note: {
+            title: "Denotes positive flow of people to Ukraine",
+            wrap: 300,
+        },
+        x: x(2.8),
+        y: y(1000),
+        dy: 40,
+        dx: 40,
+        subject: { width: 18, height: 20 },
+        type: d3.annotationCalloutRect,
+    };
+
+    switch (getCrossingType()) {
+        case "all":
+            annotations.push(
+                denotesFlowToUkraine,
+                beginningOfInvasion,
+                {
+                    note: {
+                        label: "Peak net crossings at 229,832 people",
+                        title: "March 7th",
+                        wrap: 250,
+                    },
+                    x: x(65.3),
+                    y: y(231000),
+                    dy: 40,
+                    dx: -80,
+                    subject: { radius: 12, radiusPadding: 10 },
+                    type: d3.annotationCalloutCircle
+                });
+            break;
+        case "check-in":
+            annotations.push(
+                denotesFlowToUkraine,
+                beginningOfInvasion,
+                {
+                    note: {
+                        label: "Peak check-ins at 132,973 people",
+                        title: "March 7th",
+                        wrap: 250,
+                    },
+                    x: x(65.3),
+                    y: y(134000),
+                    dy: 40,
+                    dx: -80,
+                    subject: { radius: 12, radiusPadding: 10 },
+                    type: d3.annotationCalloutCircle
+                });
+            break;
+        case "evacuation":
+            annotations.push(
+                beginningOfInvasion,
+                {
+                    note: {
+                        label: "Peak evacuations at 95,781 people",
+                        title: "March 6th",
+                        wrap: 250,
+                    },
+                    x: x(65.3),
+                    y: y(97000),
+                    dy: -40,
+                    dx: -80,
+                    subject: { radius: 12, radiusPadding: 10 },
+                    type: d3.annotationCalloutCircle
+                });
+            break;
     }
-    console.log(getCrossingType());
+
     d3.select("svg").append("g").attr("transform", "translate(50,50)").call(d3.annotation().annotations(annotations))
+    let elements = document.getElementsByClassName("annotation");
+    for (let i = 0; i < elements.length; i++) {
+        const showAnnotation1Timeout = setTimeout(showAnnotation, 1000 + 1000 * i, elements[i]);
+    }
     return;
 }
 
 function clearGraph() {
     d3.select("svg").html("");
+    return;
+}
+
+function showAnnotation(node) {
+    if (node) node.classList.add("show-annotation");
+    return;
 }
 
 /***************************************************************
